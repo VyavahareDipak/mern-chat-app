@@ -1,6 +1,6 @@
 const Conversation = require("../models/conversation");
 const Message = require("../models/message")
-
+const {getReceiverSocketId, io} = require("../socket/socket")
 const sendMessage =async (req,res)=>{
 
     try{
@@ -30,13 +30,19 @@ const sendMessage =async (req,res)=>{
 
     conversation.messages.push(newMessage._id) ;
 
-    //ADD SCOKET.IO FUCTIONALITY 
-
+   
         // this takes more time
         // await newMessage.save() ;
         // await conversation.save() ;
 
         await Promise.all([conversation.save(),newMessage.save()]) ;
+
+         //ADD SCOKET.IO FUCTIONALITY 
+        const receiverSocketId = getReceiverSocketId(receiverId) ;
+        if(receiverSocketId){
+            //io.to(<socket.id>).emit() used to send events to specific user
+            io.to(receiverSocketId).emit("newMessage",newMessage) ;
+        }
     
     res.status(200).json(newMessage)
 
