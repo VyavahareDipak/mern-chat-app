@@ -4,7 +4,8 @@ const Message = require("../models/message")
 const sendMessage =async (req,res)=>{
 
     try{
-        const {message } = req.body ;
+        const {message} = req.body ;
+        console.log(message) ;
     const {id} = req.params ;
     const receiverId = id ;
     const senderId = req.user._id ;
@@ -37,10 +38,10 @@ const sendMessage =async (req,res)=>{
 
         await Promise.all([conversation.save(),newMessage.save()]) ;
     
-    res.status(200).json({conversation:conversation,message:"msg sent successfully"})
+    res.status(200).json(newMessage)
 
 }catch(err){
-    console.log("error in sendMessage")
+    console.log("error in sendMessage",err) ;
     res.status(500).json("internal server error")
     }
 }

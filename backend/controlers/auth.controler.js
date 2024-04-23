@@ -3,10 +3,11 @@ const bcrypt = require("bcryptjs") ;
 const tokengenerator = require("../utils/tokenGenerator")
  const  signup = async  (req,res)=>{
     try{
-            const {fullName,username,gender,password,conformpassword} = req.body ;
-
+            const {fullName,username,gender,password,confirmpassword} = req.body ;
+            console.log({fullName,username,gender,password,confirmpassword}) ;
+            console.log("password: ",password) ;
             //check password
-            if(password!==conformpassword){
+            if(password!==confirmpassword){
                 return res.status(400).json({succuss:false,
                 message:"password and conform password not same"})
             }
@@ -23,9 +24,9 @@ const tokengenerator = require("../utils/tokenGenerator")
             try{
                 hashPassword =await bcrypt.hash(password,10) ;
             }catch(err){
-                res.status(403).json({
+             return  res.status(403).json({
                     succuss:false,
-                    message:"got error while password hashing" 
+                    message:`got error while password hashing",${err.message}` 
                 })
             }
 
@@ -45,7 +46,7 @@ const tokengenerator = require("../utils/tokenGenerator")
                 try{
                     await tokengenerator(user._id,res) ;
                 }catch(err){
-                    res.status(403).json({
+                 return   res.status(403).json({
                         succuss:false,
                         message:`error while token creation : ${err}`
                     })
@@ -65,12 +66,12 @@ const tokengenerator = require("../utils/tokenGenerator")
             })
 
     }catch(err){
-        res.status(500).json({
+        return   res.status(500).json({
             succuss:false,
             Message:"server not respond"
         })
     }
-    res.send("sign route") ;
+    
 }
 
 const login = async (req,res)=>{
@@ -83,7 +84,7 @@ const login = async (req,res)=>{
 
         if(!user || !iscorrect){
             return res.status(403).json({
-                succuss:false,
+                success:false,
                 message:"username or password is incorrect" ,
             })
         }
@@ -91,14 +92,15 @@ const login = async (req,res)=>{
         await tokengenerator(user._id,res) ;
 
         res.status(200).json({
-            succuss:true,
-            message:"login successful"
+            success:true,
+            message:"login successful",
+            user:user
         })
 
     }catch(err){
         console.log(err)
         res.status(500).json({
-            succuss:false,
+            success:false,
             message:"internal server response"
         })
     }
